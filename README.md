@@ -1,2 +1,5 @@
 # py-client
-Python client for lokidb
+ LokiDB python client lib
+
+---
+
