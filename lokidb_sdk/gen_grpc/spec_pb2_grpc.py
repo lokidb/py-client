@@ -3,7 +3,7 @@
 import grpc
 
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-import spec_pb2 as spec__pb2
+from . import spec_pb2 as spec__pb2
 
 
 class LokiDBServiceStub(object):
@@ -16,27 +16,27 @@ class LokiDBServiceStub(object):
             channel: A grpc.Channel.
         """
         self.Del = channel.unary_unary(
-                '/LokiDBService/Del',
+                '/lokidb.LokiDBService/Del',
                 request_serializer=spec__pb2.DelRequest.SerializeToString,
                 response_deserializer=spec__pb2.DelResponse.FromString,
                 )
         self.Flush = channel.unary_unary(
-                '/LokiDBService/Flush',
+                '/lokidb.LokiDBService/Flush',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.Get = channel.unary_unary(
-                '/LokiDBService/Get',
+                '/lokidb.LokiDBService/Get',
                 request_serializer=spec__pb2.GetRequest.SerializeToString,
                 response_deserializer=spec__pb2.GetResponse.FromString,
                 )
         self.Keys = channel.unary_unary(
-                '/LokiDBService/Keys',
+                '/lokidb.LokiDBService/Keys',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=spec__pb2.KeysResponse.FromString,
                 )
         self.Set = channel.unary_unary(
-                '/LokiDBService/Set',
+                '/lokidb.LokiDBService/Set',
                 request_serializer=spec__pb2.SetRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
@@ -110,7 +110,7 @@ def add_LokiDBServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'LokiDBService', rpc_method_handlers)
+            'lokidb.LokiDBService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -129,7 +129,7 @@ class LokiDBService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/LokiDBService/Del',
+        return grpc.experimental.unary_unary(request, target, '/lokidb.LokiDBService/Del',
             spec__pb2.DelRequest.SerializeToString,
             spec__pb2.DelResponse.FromString,
             options, channel_credentials,
@@ -146,7 +146,7 @@ class LokiDBService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/LokiDBService/Flush',
+        return grpc.experimental.unary_unary(request, target, '/lokidb.LokiDBService/Flush',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -163,7 +163,7 @@ class LokiDBService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/LokiDBService/Get',
+        return grpc.experimental.unary_unary(request, target, '/lokidb.LokiDBService/Get',
             spec__pb2.GetRequest.SerializeToString,
             spec__pb2.GetResponse.FromString,
             options, channel_credentials,
@@ -180,7 +180,7 @@ class LokiDBService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/LokiDBService/Keys',
+        return grpc.experimental.unary_unary(request, target, '/lokidb.LokiDBService/Keys',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             spec__pb2.KeysResponse.FromString,
             options, channel_credentials,
@@ -197,7 +197,7 @@ class LokiDBService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/LokiDBService/Set',
+        return grpc.experimental.unary_unary(request, target, '/lokidb.LokiDBService/Set',
             spec__pb2.SetRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
