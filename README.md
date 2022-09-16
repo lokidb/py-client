@@ -1,5 +1,5 @@
 # py-client
- LokiDB python client lib
+ LokiDB python client SDK
 
 ---
 

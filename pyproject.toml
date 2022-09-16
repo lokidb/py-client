@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "lokidb_sdk"
 version = "0.1.0"
-description = "LokiDB python client lib"
+description = "LokiDB python client SDK"
 authors = ["yehoyada <hvuhsg5@gmail.com>"]
 readme = "README.md"
 packages = [{include = "lokidb_sdk"}]
