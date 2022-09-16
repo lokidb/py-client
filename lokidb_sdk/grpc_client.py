@@ -1,4 +1,5 @@
 from typing import List
+from hashlib import sha1
 
 import grpc
 
@@ -12,30 +13,66 @@ from .gen_grpc.spec_pb2_grpc import LokiDBServiceStub
 
 Empty = google_dot_protobuf_dot_empty__pb2.Empty
 
+V_BUCKETS = 1024
+
 
 class Client:
-    def __init__(self, address: tuple, timeout):
-        self._channel = grpc.insecure_channel(f'{address[0]}:{address[1]}')
-        self._stub = LokiDBServiceStub(self._channel)
+    def __init__(self, nodes_address: List[tuple]):
+        self._v_buckets = []
+
+        for v_bucket_index in range(V_BUCKETS):
+            distances = [
+                int.from_bytes(sha1(f'{address[0]}:{address[1]}'.encode()).digest(), 'big')
+                % (v_bucket_index+1)
+                for address in nodes_address
+            ]
+            node_index = distances.index(min(distances))
+            self._v_buckets.append(nodes_address[node_index])
+
+        self._nodes = {}
+
+        for address in nodes_address:
+            channel = grpc.insecure_channel(f'{address[0]}:{address[1]}')
+            stub = LokiDBServiceStub(channel)
+            self._nodes[address] = {"channel": channel, 'stub': stub}
+
+        self._sorted_nodes = sorted(self._nodes.keys())
+
+    def _node_by_key(self, key: str):
+        hash_bytes = sha1(key.encode()).digest()
+        num = int.from_bytes(hash_bytes, 'big')
+        node_id = self._v_buckets[num % V_BUCKETS]
+        return self._nodes[node_id]['stub']
 
     def get(self, key: str) -> str:
-        resp = self._stub.Get(GetRequest(key=key))
+        node = self._node_by_key(key)
+        resp = node.Get(GetRequest(key=key))
         return resp.value
 
     def set(self, key: str, value: str):
-        self._stub.Set(SetRequest(key=key, value=value))
+        node = self._node_by_key(key)
+        node.Set(SetRequest(key=key, value=value))
 
     def delete(self, key: str) -> bool:
-        return self._stub.Del(DelRequest(key=key)).deleted
+        node = self._node_by_key(key)
+        return node.Del(DelRequest(key=key)).deleted
 
     def keys(self) -> List[str]:
-        return self._stub.Keys(Empty()).keys
+        keys = []
+        for node_dict in self._nodes.values():
+            node = node_dict['stub']
+            keys.extend(node.Keys(Empty()).keys)
+        return keys
 
     def flush(self):
-        self._stub.Flush(Empty())
+        for node_dict in self._nodes.values():
+            node = node_dict['stub']
+            node.Flush(Empty())
 
     def close(self):
-        self._channel.close()
+        for node_dict in self._nodes.values():
+            channel = node_dict['channel']
+            channel.close()
 
     def __enter__(self):
         return self

@@ -5,21 +5,33 @@
 
 ## Example
 ```python
+from random import randrange
+
 from lokidb_sdk import Client
 
-c = Client(("localhost", 50051), 10)
+c = Client(
+    [
+        ("localhost", 50051),
+        ("localhost", 50052),
+        ("localhost", 50053),
+        ("localhost", 50054),
+        ("localhost", 50055),
+    ]
+)
 
-c.set("e", "E")
+for _ in range(1000):
+    key = f'{randrange(-99999999, 99999999)}'
+    value = f'{randrange(-99999999, 99999999)}'*10
 
-print(c.get("e"))
+    c.set(key, value)
+    print(c.get(key))
 
+# Get all keys from all nodes
 print(c.keys())
 
-c.delete("e")
-
-c.flush()
-
+# Close connection to all nodes
 c.close()
+
 ```
 
 ## API
