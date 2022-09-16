@@ -14,32 +14,35 @@ from .gen_grpc.spec_pb2_grpc import LokiDBServiceStub
 Empty = google_dot_protobuf_dot_empty__pb2.Empty
 
 V_BUCKETS = 1024
+HASH_USE_LENGTH = 4
 
 
 class Client:
     def __init__(self, nodes_address: List[tuple]):
         self._v_buckets = []
-
         for v_bucket_index in range(V_BUCKETS):
-            distances = [
-                int.from_bytes(sha1(f'{address[0]}:{address[1]}'.encode()).digest(), 'big')
-                % (v_bucket_index+1)
-                for address in nodes_address
-            ]
+            distances = []
+
+            for address in nodes_address:
+                if address[0] == "localhost":
+                    address = ("127.0.0.1", address[1])
+
+                has = int.from_bytes(sha1(f'{address[0]}:{address[1]}'.encode()).digest()[:HASH_USE_LENGTH], 'big')
+                mod = ((v_bucket_index+1)*V_BUCKETS)
+                dis = has % mod
+                distances.append(dis)
+
             node_index = distances.index(min(distances))
             self._v_buckets.append(nodes_address[node_index])
 
         self._nodes = {}
-
         for address in nodes_address:
             channel = grpc.insecure_channel(f'{address[0]}:{address[1]}')
             stub = LokiDBServiceStub(channel)
             self._nodes[address] = {"channel": channel, 'stub': stub}
 
-        self._sorted_nodes = sorted(self._nodes.keys())
-
     def _node_by_key(self, key: str):
-        hash_bytes = sha1(key.encode()).digest()
+        hash_bytes = sha1(key.encode()).digest()[:HASH_USE_LENGTH]
         num = int.from_bytes(hash_bytes, 'big')
         node_id = self._v_buckets[num % V_BUCKETS]
         return self._nodes[node_id]['stub']
